@@ -39,7 +39,7 @@ func MustParseCLIArgs() Args {
 func ParseCliArgs() (Args, validator.ValidationErrors) {
 	args := Args{}
 
-	flag.StringVar(&args.Dir, "f", "", dirUsage)
+	flag.StringVar(&args.Dir, "d", "", dirUsage)
 	flag.UintVar(&args.Port, "p", defaultPort, portUsage)
 
 	flag.Parse()
