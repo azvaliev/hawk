@@ -19,7 +19,7 @@ type printDirEntryInfo struct {
 	Size       string
 }
 
-type directoryTemplate struct {
+type directoryTemplateParams struct {
 	Title   string
 	Entries []*printDirEntryInfo
 }
@@ -72,8 +72,8 @@ func (h HTTPFileServer) getDirContent(dirPath string, dirEntries []fs.DirEntry) 
 		return nil, err
 	}
 
-	var buf bytes.Buffer
-	err = t.Execute(&buf, directoryTemplate{
+	var contentBuffer bytes.Buffer
+	err = t.Execute(&contentBuffer, directoryTemplateParams{
 		Title:   dirPath,
 		Entries: entriesWithMeta,
 	})
@@ -81,5 +81,5 @@ func (h HTTPFileServer) getDirContent(dirPath string, dirEntries []fs.DirEntry) 
 		return nil, err
 	}
 
-	return buf.Bytes(), nil
+	return contentBuffer.Bytes(), nil
 }

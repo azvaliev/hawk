@@ -7,29 +7,43 @@ import (
 
 func (h HTTPFileServer) handleFileRequest(requestedFilePath string) FileServerResponse {
 	content, err := fs.ReadFile(h.fs, requestedFilePath)
-	status := http.StatusOK
-	if err != nil {
-		status = http.StatusInternalServerError
-	}
-
-	return FileServerResponse{
-		Status:  status,
+	res := FileServerResponse{
+		Status:  http.StatusOK,
 		Content: content,
 		Err:     err,
 	}
+	if res.Err != nil {
+		res.Status = http.StatusInternalServerError
+		res.Content = getErrorContentForStatus(&res)
+	}
+
+	return res
 }
 
-func (h HTTPFileServer) handleFileNotExistRequest(originalRequestFilePath string) FileServerResponse {
-	status := http.StatusNotFound
-	// Try finding an html file with the same name
-	content, err := fs.ReadFile(h.fs, originalRequestFilePath+".html")
-	if err == nil {
-		status = http.StatusOK
+func (h HTTPFileServer) handleFileNotExistRequest(requestedFilePath string) FileServerResponse {
+	res := FileServerResponse{Status: http.StatusNotFound}
+
+	// Try finding a html file with the same name
+	res.Content, _ = fs.ReadFile(h.fs, requestedFilePath+".html")
+	if res.Content != nil {
+		res.Status = http.StatusOK
+	} else {
+		res.Content = getErrorContentForStatus(&res)
 	}
 
-	return FileServerResponse{
-		Status:  status,
-		Content: content,
-		Err:     nil,
-	}
+	return res
+}
+
+func (h HTTPFileServer) handleFileForbiddenRequest() FileServerResponse {
+	res := FileServerResponse{Status: http.StatusForbidden}
+	res.Content = getErrorContentForStatus(&res)
+
+	return res
+}
+
+func (h HTTPFileServer) handleOtherErrorRequest(err error) FileServerResponse {
+	res := FileServerResponse{Status: http.StatusInternalServerError, Err: err}
+	res.Content = getErrorContentForStatus(&res)
+
+	return res
 }

@@ -71,17 +71,9 @@ func (h HTTPFileServer) getResponse(req *http.Request) FileServerResponse {
 	case resolvePath.PathDoesNotExist:
 		return h.handleFileNotExistRequest(requestedPath)
 	case resolvePath.PathForbidden:
-		return FileServerResponse{
-			Status:  http.StatusForbidden,
-			Content: nil,
-			Err:     nil,
-		}
+		return h.handleFileForbiddenRequest()
 	default:
-		return FileServerResponse{
-			Status:  http.StatusInternalServerError,
-			Content: nil,
-			Err:     err,
-		}
+		return h.handleOtherErrorRequest(err)
 	}
 
 }
