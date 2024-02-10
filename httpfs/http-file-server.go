@@ -65,9 +65,19 @@ func (h HTTPFileServer) getResponse(req *http.Request) FileServerResponse {
 
 	switch pathType {
 	case resolvePath.PathIsDir:
+		var content []byte
+		status := 200
+		dirEntries, err := fs.ReadDir(h.fs, requestedFilePath)
+		if err == nil {
+			content, err = h.handleDirRequest(requestedFilePath, dirEntries)
+		}
+		if err != nil {
+			status = 500
+		}
+
 		return FileServerResponse{
-			Status:  http.StatusBadRequest,
-			Content: []byte("TODO: Print directory contents and send HTML when requested"),
+			Status:  status,
+			Content: content,
 			Err:     err,
 		}
 	case resolvePath.PathIsFile:

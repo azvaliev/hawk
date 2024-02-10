@@ -1,0 +1,31 @@
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <title>{{.Title}}}</title>
+    </head>
+    <body>
+        <table>
+            <thead>
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Last Modified At</th>
+                    <th scope="col">Size</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{ range .Entries }}
+                    <tr>
+                        <th scope="row">
+                            <a href="{{ .Path }}">
+                                {{ .Name }}{{ if .IsDir }}/{{ end }}
+                            </a>
+                        </th>
+                        <td>{{ .ModifiedAt }}</td>
+                        <td>{{ .Size }}</td>
+                    </tr>
+                {{ end }}
+            </tbody>
+        </table>
+    </body>
+</html>
