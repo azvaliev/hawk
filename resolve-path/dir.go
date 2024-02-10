@@ -18,7 +18,7 @@ func GetDirAbsolutePath(path string) (string, *GetDirAbsolutePathError) {
 		cwd, err := os.Getwd()
 		if err != nil {
 			return "", &GetDirAbsolutePathError{
-				Context: "Failed to get CWD",
+				Context: "failed to get CWD",
 				Err:     err,
 			}
 		}
@@ -30,22 +30,22 @@ func GetDirAbsolutePath(path string) (string, *GetDirAbsolutePathError) {
 	switch pathType {
 	case PathIsFile:
 		return "", &GetDirAbsolutePathError{
-			Context: "Path is not a directory",
+			Context: "path is not a directory",
 			Err:     err,
 		}
 	case PathDoesNotExist:
 		return "", &GetDirAbsolutePathError{
-			Context: "Path does not exist",
+			Context: "path does not exist",
 			Err:     err,
 		}
 	case PathForbidden:
 		return "", &GetDirAbsolutePathError{
-			Context: "Insufficient permission to access the path",
+			Context: "insufficient permission to access the path",
 			Err:     err,
 		}
 	case PathUnknown:
 		return "", &GetDirAbsolutePathError{
-			Context: "Unknown issue with accessing path",
+			Context: "unknown issue with accessing path",
 			Err:     err,
 		}
 	default:

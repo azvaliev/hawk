@@ -1,3 +1,4 @@
 # Hawk
 
-Simple static file server CLI
+Simple static file server CLI.  
+**Not intended for production usage.**
