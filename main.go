@@ -16,7 +16,7 @@ func main() {
 
 	fullPath, resolvePathErr := resolvepath.GetDirAbsolutePath(args.Dir)
 	if resolvePathErr != nil {
-		log.Fatalf("Failed to resolve basePath: %s\n", resolvePathErr.Context)
+		log.Fatalf("Failed to resolve path \"%s\": %s\n", args.Dir, resolvePathErr.Context)
 	}
 	fileServer := httpfs.GetHTTPFileServer(os.DirFS(fullPath))
 
