@@ -58,6 +58,9 @@ func (h HTTPFileServer) getResponse(req *http.Request) FileServerResponse {
 
 	// Remove slash prefix
 	requestedFilePath := req.URL.Path[1:]
+	if requestedFilePath == "" {
+		requestedFilePath = "."
+	}
 	pathType, err := resolvePath.GetPathType(fs.Stat(h.fs, requestedFilePath))
 
 	switch pathType {
