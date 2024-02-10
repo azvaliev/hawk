@@ -5,6 +5,7 @@ import (
 	"embed"
 	"html/template"
 	"io/fs"
+	"net/http"
 	"path/filepath"
 	"strings"
 	"time"
@@ -28,26 +29,22 @@ type directoryTemplateParams struct {
 var dirTemplateEmbed embed.FS
 
 func (h HTTPFileServer) handleDirRequest(requestedFilePath string) FileServerResponse {
-	var content []byte
-	status := 200
+	res := FileServerResponse{Status: http.StatusOK}
 	dirEntries, err := fs.ReadDir(h.fs, requestedFilePath)
 	if err == nil {
-		content, err = h.getDirContent(requestedFilePath, dirEntries)
-	}
-	if err != nil {
-		status = 500
+		res.Content, res.Err = h.getDirContent(requestedFilePath, dirEntries)
+	} else {
+		res.Status = 500
+		res.Err = err
 	}
 
-	return FileServerResponse{
-		Status:  status,
-		Content: content,
-		Err:     err,
-	}
+	return res
 }
 
 func (h HTTPFileServer) getDirContent(dirPath string, dirEntries []fs.DirEntry) (content []byte, err error) {
 	entriesWithMeta := make([]*printDirEntryInfo, len(dirEntries))
 
+	// Get info for each entry
 	for idx, dirEntry := range dirEntries {
 		info, err := dirEntry.Info()
 		if err != nil {
@@ -67,6 +64,7 @@ func (h HTTPFileServer) getDirContent(dirPath string, dirEntries []fs.DirEntry) 
 		}
 	}
 
+	// Fill out the template
 	t, err := template.ParseFS(dirTemplateEmbed, "directory.gohtml")
 	if err != nil {
 		return nil, err
