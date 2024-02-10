@@ -27,7 +27,25 @@ type directoryTemplate struct {
 //go:embed directory.gohtml
 var dirTemplateEmbed embed.FS
 
-func (h HTTPFileServer) handleDirRequest(dirPath string, dirEntries []fs.DirEntry) (content []byte, err error) {
+func (h HTTPFileServer) handleDirRequest(requestedFilePath string) FileServerResponse {
+	var content []byte
+	status := 200
+	dirEntries, err := fs.ReadDir(h.fs, requestedFilePath)
+	if err == nil {
+		content, err = h.getDirContent(requestedFilePath, dirEntries)
+	}
+	if err != nil {
+		status = 500
+	}
+
+	return FileServerResponse{
+		Status:  status,
+		Content: content,
+		Err:     err,
+	}
+}
+
+func (h HTTPFileServer) getDirContent(dirPath string, dirEntries []fs.DirEntry) (content []byte, err error) {
 	entriesWithMeta := make([]*printDirEntryInfo, len(dirEntries))
 
 	for idx, dirEntry := range dirEntries {

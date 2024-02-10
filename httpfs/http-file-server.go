@@ -57,47 +57,19 @@ func (h HTTPFileServer) getResponse(req *http.Request) FileServerResponse {
 	}
 
 	// Remove slash prefix
-	requestedFilePath := req.URL.Path[1:]
-	if requestedFilePath == "" {
-		requestedFilePath = "."
+	requestedPath := req.URL.Path[1:]
+	if requestedPath == "" {
+		requestedPath = "."
 	}
-	pathType, err := resolvePath.GetPathType(fs.Stat(h.fs, requestedFilePath))
+	pathType, err := resolvePath.GetPathType(fs.Stat(h.fs, requestedPath))
 
 	switch pathType {
 	case resolvePath.PathIsDir:
-		var content []byte
-		status := 200
-		dirEntries, err := fs.ReadDir(h.fs, requestedFilePath)
-		if err == nil {
-			content, err = h.handleDirRequest(requestedFilePath, dirEntries)
-		}
-		if err != nil {
-			status = 500
-		}
-
-		return FileServerResponse{
-			Status:  status,
-			Content: content,
-			Err:     err,
-		}
+		return h.handleDirRequest(requestedPath)
 	case resolvePath.PathIsFile:
-		content, err := fs.ReadFile(h.fs, requestedFilePath)
-		status := http.StatusOK
-		if err != nil {
-			status = http.StatusInternalServerError
-		}
-
-		return FileServerResponse{
-			Status:  status,
-			Content: content,
-			Err:     err,
-		}
+		return h.handleFileRequest(requestedPath)
 	case resolvePath.PathDoesNotExist:
-		return FileServerResponse{
-			Status:  http.StatusNotFound,
-			Content: nil,
-			Err:     nil,
-		}
+		return h.handleFileNotExistRequest(requestedPath)
 	case resolvePath.PathForbidden:
 		return FileServerResponse{
 			Status:  http.StatusForbidden,
